@@ -129,7 +129,6 @@ class App:
     def collect_configs(self) -> Self:
         print("Collecting configs")
         configs: list[Path] = [
-            self._plutonium.get_root() / "config.json",
             self._plutonium.get_root() / "info.json",
             self._plutonium.path_storage() / Game.T5.value / "players" / "competitive-t5.json"
         ]
