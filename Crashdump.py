@@ -41,7 +41,7 @@ class Crashdump:
 
     @staticmethod
     def get_common_exp():
-        return re.compile(r"(plutonium-r[\d]{4,5}-t[\w]{3}-[\d]{4}-[\d]{2}-[\d]{2}).*")
+        return re.compile(r"(plutonium-r[\d]{4,5}-t[\w]{3}-[\d]{4}-[\d]{2}-[\d]{2}_[\d]{2}-[\d]{2}-[\d]{2}).*")
 
 
     def matches_common(self, common: str) -> bool:
