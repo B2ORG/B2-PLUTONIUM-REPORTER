@@ -34,8 +34,11 @@ class Plutonium:
     def path_storage(self):
         return self._root / "storage"
 
-    def path_main_for(self, game: Game):
+    def path_main_for(self, game: Game) -> Path:
         return self.path_storage() / game.value / "main"
+
+    def path_mods_for(self, game: Game) -> Path:
+        return self.path_storage() / game.value / "mods"
 
     def get_configs_for(self, game: Game) -> list[Path]:
         config_path = self.path_storage() / game.value

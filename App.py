@@ -79,23 +79,18 @@ class App:
         print("Collecting Plutonium logs")
         self.error_if(not self._has_crashdumps and not self._has_t4_logs and not self._has_t5_logs and not self._has_t6_logs, "There are no logs to collect in your Plutonium directory")
 
+        using_crashdumps: bool = False
         crashdumps: Optional[list[Crashdump]] = None
         if self._has_crashdumps:
             crashdumps = self._select_crashdump()
 
         if crashdumps is not None and len(crashdumps):
+            using_crashdumps = True
             for crashdump in crashdumps:
                 self._logs.append(FileLogDTO(
                     self._plutonium.path_crashdumps() / crashdump.get_file(), crashdump.get_file_type()
                 ))
             self._game = crashdumps[0].get_game()
-            for file in self._plutonium.path_main_for(self._game).glob("*.log*"):
-                type = PlutoniumFileType.ConsoleLog if file.match("console*.log") else PlutoniumFileType.GameLog
-                self._logs.append(FileLogDTO(
-                    self._plutonium.path_main_for(self._game) / file, type
-                ))
-
-            print(f"\tCollected {len(self._logs)} logs based on selected crashdump")
         else:
             print("Select in which game the problem/crash occured")
             print("1 - Call of Duty: World at War")
@@ -115,12 +110,23 @@ class App:
                     break
                 print("Incorrect selection, you must specify one of the 3 options listed above.")
 
-            for file in self._plutonium.path_main_for(self._game).glob("*.log*"):
+        for file in self._plutonium.path_main_for(self._game).glob("*.log*"):
+            type = PlutoniumFileType.ConsoleLog if file.match("console*.log") else PlutoniumFileType.GameLog
+            self._logs.append(FileLogDTO(
+                self._plutonium.path_main_for(self._game) / file, type
+            ))
+        for mod_dir in self._plutonium.path_mods_for(self._game).iterdir():
+            if not mod_dir.is_dir():
+                continue
+            for file in mod_dir.glob("*.log"):
                 type = PlutoniumFileType.ConsoleLog if file.match("console*.log") else PlutoniumFileType.GameLog
                 self._logs.append(FileLogDTO(
-                    self._plutonium.path_main_for(self._game) / file, type
+                    self._plutonium.path_mods_for(self._game) / mod_dir / file, type
                 ))
 
+        if using_crashdumps:
+            print(f"\tCollected {len(self._logs)} logs based on selected crashdump")
+        else:
             print(f"\tCollected {len(self._logs)} logs based on selected game")
 
         return self
