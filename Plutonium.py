@@ -13,7 +13,7 @@ class Plutonium:
         self._root = path
         return self
 
-    def get_root(self) -> str:
+    def get_root(self) -> Path:
         return self._root
 
     def path_bin(self):
