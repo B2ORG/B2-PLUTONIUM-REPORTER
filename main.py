@@ -8,6 +8,7 @@ def main():
         .collect_file_hashes()
         .collect_hardware_data()
         .collect_event_log_entries()
+        .collect_power_settings()
         .compose_report()
     )
     input("Press ENTER to finish, send the zip file to the person handling your issue")

@@ -5,11 +5,13 @@ from dto.FileConfigDTO import FileConfigDTO
 from dto.FileHashDTO import FileHashDTO
 from dto.FileLogDTO import FileLogDTO
 from dto.HadwareDTO import HardwareDTO
+from dto.PowerSettingsDTO import PowerSettingsDTO
 from AbstractHardware import AbstractHardware
 from Crashdump import Crashdump
 from Encoder import Encoder
 from Game import Game
 from HardwareWindows import HardwareWindows
+from PowerSettings import PowerSettings
 from Plutonium import Plutonium
 from PlutoniumFileType import PlutoniumFileType
 from WindowsEventLog import WindowsEventLog
@@ -197,6 +199,13 @@ class App:
         return self
 
 
+    def collect_power_settings(self) -> Self:
+        print("Collecting power settings")
+        self._power_settings: PowerSettingsDTO = PowerSettings().collect()
+        print(f"\tCollected power settings")
+        return self
+
+
     def compose_report(self) -> Self:
         print(f"Generating incident report")
         report_path = Path.cwd() / f"b2-report-{int(dt.datetime.now().timestamp())}.zip"
@@ -208,7 +217,8 @@ class App:
                 "created_at": dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                 "crashdumps_detected": self._has_crashdumps,
                 "file_hashes": [vars(dto) for dto in self._hashes],
-                "hardware_info": vars(self._hardware)
+                "hardware_info": vars(self._hardware),
+                "power_settings": vars(self._power_settings)
             }, ensure_ascii=False, indent=4, cls=Encoder))
 
             report.mkdir("configs")
