@@ -6,8 +6,7 @@ from typing import Optional
 
 
 class WindowsEventLog:
-    PROVIDERS = ("Application Error", "Windows Error Reporting")
-    EVENT_IDS = (1000, 1001)
+    EVENT_IDS = (1000, 1001, 1002)
 
 
     def __init__(self, path_filter: Optional[Path] = None, alltime_events: bool = False, datetime: Optional[dt.datetime] = None):
@@ -20,9 +19,6 @@ class WindowsEventLog:
         start_time = dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=14)
         iso_time = start_time.strftime("%Y-%m-%dT%H:%M:%S.000Z")
 
-        provider_filter = " or ".join(
-            f'Provider[@Name="{p}"]' for p in WindowsEventLog.PROVIDERS
-        )
         eventid_filter = " or ".join(
             f"EventID={eid}" for eid in WindowsEventLog.EVENT_IDS
         )
@@ -35,8 +31,7 @@ class WindowsEventLog:
 
         query = f"""
         *[System[
-            ({provider_filter})
-            and ({eventid_filter})
+            ({eventid_filter})
             {time_query}]
         ]]
         """
