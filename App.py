@@ -122,14 +122,16 @@ class App:
             self._logs.append(FileLogDTO(
                 self._plutonium.path_main_for(self._game) / file, type
             ))
-        for mod_dir in self._plutonium.path_mods_for(self._game).iterdir():
-            if not mod_dir.is_dir():
-                continue
-            for file in mod_dir.glob("*.log"):
-                type = PlutoniumFileType.ConsoleLog if file.match("console*.log") else PlutoniumFileType.GameLog
-                self._logs.append(FileLogDTO(
-                    self._plutonium.path_mods_for(self._game) / mod_dir / file, type
-                ))
+
+        if self._plutonium.path_mods_for(self._game).exists():
+            for mod_dir in self._plutonium.path_mods_for(self._game).iterdir():
+                if not mod_dir.is_dir():
+                    continue
+                for file in mod_dir.glob("*.log"):
+                    type = PlutoniumFileType.ConsoleLog if file.match("console*.log") else PlutoniumFileType.GameLog
+                    self._logs.append(FileLogDTO(
+                        self._plutonium.path_mods_for(self._game) / mod_dir / file, type
+                    ))
 
         if using_crashdumps:
             print(f"\tCollected {len(self._logs)} logs based on selected crashdump")
