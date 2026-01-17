@@ -50,6 +50,9 @@ class Plutonium:
         except ValueError:
             return str(path)
 
+    def is_valid_plutonium_directory(self) -> bool:
+        return self.path_bin().exists() and self.path_games().exists() and self.path_launcher().exists() and self.path_storage().exists()
+
     def get_hashes(self, file: Path) -> dict[str, str]:
         return {
             "crc32": "0x" + format(binascii.crc32(file.read_bytes()) & 0xFFFFFFFF, "08X"),

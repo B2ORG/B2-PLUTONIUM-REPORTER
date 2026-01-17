@@ -22,9 +22,9 @@ import datetime as dt
 class App:
     def __init__(self):
         self._runtime_alltime_events = "--all-events" in sys.argv
+        self._runtime_staging: bool = "--staging" in sys.argv
 
         self._plutonium: Plutonium = Plutonium()
-        self._root: Path = Path(os.environ["localappdata"]) / "Plutonium"
         self._has_crashdumps: bool = False
         self._has_t4_logs: bool = False
         self._has_t5_logs: bool = False
@@ -43,27 +43,34 @@ class App:
             sys.exit(0)
 
 
-    def find_plutonium_path(self) -> Self:
-        print("Detecting Plutonium path")
-        if not self._root.exists():
-            print("Default Plutonium path is missing. Press ENTER if reporter is currently placed in a Plutonium directory, or put in absolute path to Plutonium")
-            try_path = input("> ")
-            self._root = Path.cwd() if not try_path else Path(try_path)
-            self.error_if(not self._root.exists(), f"The path {str(self._root)} does not exist. Quitting")
+    def set_plutonium_path(self) -> Self:
+        print("Finding Plutonium path")
+        paths: list[Path] = []
+        if self._runtime_staging:
+            paths.append(Path(os.environ["localappdata"]) / "Plutonium-staging")
+        paths.append(Path.cwd())
+        paths.append(Path(os.environ["localappdata"]) / "Plutonium")
 
-        self._plutonium.set_root(self._root)
-        print(f"\tFound Plutonium path: {self._root}")
-        return self
+        for path in paths:
+            self._plutonium.set_root(path)
+            if self._plutonium.is_valid_plutonium_directory():
+                break
+            print(f"Plutonium path not found: {self._plutonium.get_root()}")
+            continue
 
+        while not self._plutonium.is_valid_plutonium_directory():
+            print("Couldn't find Plutonium files, please enter absolute path to Plutonium folder")
+            try_dir = input("> ")
+            try:
+                input_dir = Path(try_dir)
+                assert input_dir.exists(), "Path does not exist"
+            except Exception:
+                print(f"'{try_dir}' is not a valid path")
+                continue
 
-    def check_directory_structure(self) -> Self:
-        print("Validating base Plutonium path structure")
-        self.error_if(not self._plutonium.path_bin().exists(), "Missing 'bin' folder")
-        self.error_if(not self._plutonium.path_games().exists(), "Missing 'games' folder")
-        self.error_if(not self._plutonium.path_launcher().exists(), "Missing 'launcher' folder")
-        self.error_if(not self._plutonium.path_storage().exists(), "Missing 'storage' folder")
+            self._plutonium.set_root(input_dir)
 
-        print("\tValidated presence of base Plutonium directories")
+        print(f"\tSet Plutonium root path to: {self._plutonium.get_root()}")
 
         self._has_crashdumps = bool(self._plutonium.path_crashdumps().exists() and len(list(self._plutonium.path_crashdumps().iterdir())))
         self._has_t4_logs = bool(self._plutonium.path_main_for(Game.T4).exists() and len(list(self._plutonium.path_main_for(Game.T4).glob("console.log*"))))
@@ -194,7 +201,7 @@ class App:
 
         with zipfile.ZipFile(report_path, "x", compresslevel=9) as report:
             report.writestr("general.json", json.dumps({
-                "root_path": self._root,
+                "root_path": str(self._plutonium.get_root()),
                 "game": self._game.value,
                 "created_at": dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                 "crashdumps_detected": self._has_crashdumps,

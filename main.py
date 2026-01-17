@@ -2,8 +2,7 @@ from App import App
 
 def main():
     (App()
-        .find_plutonium_path()
-        .check_directory_structure()
+        .set_plutonium_path()
         .collect_relevant_logs()
         .collect_configs()
         .collect_file_hashes()
