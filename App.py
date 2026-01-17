@@ -33,6 +33,7 @@ class App:
         self._has_t6_logs: bool = False
         self._game: Optional[Game] = None
         self._logs: list[FileLogDTO] = []
+        self._crashdumps: Optional[list[Crashdump]] = None
         self._configs: list[FileConfigDTO] = []
         self._hashes: list[FileHashDTO] = []
         self._hardware: HardwareDTO
@@ -89,17 +90,16 @@ class App:
         self.error_if(not self._has_crashdumps and not self._has_t4_logs and not self._has_t5_logs and not self._has_t6_logs, "There are no logs to collect in your Plutonium directory")
 
         using_crashdumps: bool = False
-        crashdumps: Optional[list[Crashdump]] = None
         if self._has_crashdumps:
-            crashdumps = self._select_crashdump()
+            self._crashdumps = self._select_crashdump()
 
-        if crashdumps is not None and len(crashdumps):
+        if self._crashdumps is not None and len(self._crashdumps):
             using_crashdumps = True
-            for crashdump in crashdumps:
+            for crashdump in self._crashdumps:
                 self._logs.append(FileLogDTO(
                     self._plutonium.path_crashdumps() / crashdump.get_file(), crashdump.get_file_type()
                 ))
-            self._game = crashdumps[0].get_game()
+            self._game = self._crashdumps[0].get_game()
         else:
             print("\tSelect in which game the problem/crash occured")
             print("\t\t1 - Call of Duty: World at War")
@@ -193,7 +193,11 @@ class App:
 
     def collect_event_log_entries(self) -> Self:
         print("Collecting event logs")
-        event_log: WindowsEventLog = WindowsEventLog(self._plutonium.get_root(), self._runtime_alltime_events)
+        event_log: WindowsEventLog = WindowsEventLog(
+            self._plutonium.get_root(), 
+            self._runtime_alltime_events, 
+            self._crashdumps[0].get_datetime() if len(self._crashdumps) else None
+        )
         self._events = event_log.collect()
         print(f"\tCollected {len(self._events)} events")
         return self
@@ -234,6 +238,8 @@ class App:
             report.mkdir("events")
             events_dir = Path("events")
             for event in self._events:
+                print(event)
+                assert isinstance(event, XML.Element), f"event is not an instance of Element (found {type(event).__name__})"
                 report.writestr(str(events_dir / f"{uuid.uuid4().hex}.xml"), XML.tostring(event, xml_declaration=True))
 
         print(f"\tGenerated incident report at {report_path}")

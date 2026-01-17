@@ -58,3 +58,7 @@ class Crashdump:
 
     def get_game(self) -> Game:
         return self._game
+
+
+    def get_datetime(self) -> dt.datetime:
+        return self._datetime
