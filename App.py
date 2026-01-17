@@ -21,7 +21,7 @@ import datetime as dt
 
 class App:
     def __init__(self):
-        self._runtime_alltime_events = "--all-events" in sys.argv
+        self._runtime_alltime_events: bool = "--all-events" in sys.argv
         self._runtime_staging: bool = "--staging" in sys.argv
 
         self._plutonium: Plutonium = Plutonium()
@@ -99,10 +99,10 @@ class App:
                 ))
             self._game = crashdumps[0].get_game()
         else:
-            print("Select in which game the problem/crash occured")
-            print("1 - Call of Duty: World at War")
-            print("2 - Call of Duty: Black Ops")
-            print("3 - Call of Duty: Black Ops II")
+            print("\tSelect in which game the problem/crash occured")
+            print("\t\t1 - Call of Duty: World at War")
+            print("\t\t2 - Call of Duty: Black Ops")
+            print("\t\t3 - Call of Duty: Black Ops II")
 
             while True:
                 selection = input("> ")
@@ -234,7 +234,7 @@ class App:
         crashdumps: list[Crashdump] = []
         dump_games = set()
 
-        print("Input a number representing the game that the crash/issue occured in and then press ENTER. If the game is not on the list, just press ENTER")
+        print("\tInput a number representing the game that the crash/issue occured in and then press ENTER. If the game is not on the list, just press ENTER")
         for dump in self._plutonium.path_crashdumps().iterdir():
             common_file: Optional[re.Match] = re.search(Crashdump.get_common_exp(), str(dump))
             if common_file is None:
@@ -243,7 +243,7 @@ class App:
             common_file = common_file.group(1)
 
             if common_file not in dump_games:
-                print(f"{len(dump_map)} - {common_file}")
+                print(f"\t\t{len(dump_map)} - {common_file}")
                 dump_map[len(dump_map)] = common_file
                 dump_games.add(common_file)
 
