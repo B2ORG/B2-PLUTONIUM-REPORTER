@@ -196,7 +196,7 @@ class App:
         event_log: WindowsEventLog = WindowsEventLog(
             self._plutonium.get_root(), 
             self._runtime_alltime_events, 
-            self._crashdumps[0].get_datetime() if len(self._crashdumps) else None
+            self._crashdumps[0].get_datetime() if self._crashdumps is not None and len(self._crashdumps) else None
         )
         self._events = event_log.collect()
         print(f"\tCollected {len(self._events)} events")
