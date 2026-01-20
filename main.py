@@ -1,7 +1,11 @@
 from App import App
 
+VERSION = "1.0"
+
 def main():
-    (App()
+    print(f"B2 PLUTONIUM REPORTER V{VERSION}")
+
+    (App(VERSION)
         .set_plutonium_path()
         .collect_relevant_logs()
         .collect_configs()

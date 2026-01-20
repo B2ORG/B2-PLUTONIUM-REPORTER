@@ -15,7 +15,7 @@ class WindowsEventLog:
         self._datetime = datetime
 
 
-    def collect(self) -> list[dict]:
+    def collect(self) -> list[XML.Element]:
         start_time = dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=14)
         iso_time = start_time.strftime("%Y-%m-%dT%H:%M:%S.000Z")
 

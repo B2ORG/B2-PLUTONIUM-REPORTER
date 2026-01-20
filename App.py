@@ -22,7 +22,8 @@ import datetime as dt
 
 
 class App:
-    def __init__(self):
+    def __init__(self, reporter_version: str):
+        self._version = reporter_version
         self._runtime_alltime_events: bool = "--all-events" in sys.argv
         self._runtime_staging: bool = "--staging" in sys.argv
 
@@ -216,6 +217,7 @@ class App:
 
         with zipfile.ZipFile(report_path, "x", compresslevel=9) as report:
             report.writestr("general.json", json.dumps({
+                "reporter_version": self._version,
                 "root_path": str(self._plutonium.get_root()),
                 "game": self._game.value,
                 "created_at": dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
