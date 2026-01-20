@@ -28,7 +28,7 @@ C:\Users\<your username>\AppData\Local\Plutonium
 
 If you do not know what this is about, it most likely does not apply to you. But in case you've placed Plutonium in another place on your pc, you need to put the reporter the main Plutonium directory, otherwise it won't be able to locate the relevant files.
 
-> [!INFO]
+> [!TIP]
 > Plutonium installation IS NOT the same as your game files. It DOES NOT matter where the actual game is installed.
 
 2) Select the crashdump file
