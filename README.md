@@ -52,19 +52,25 @@ At this point you can just press enter or close the program, the report file is 
 ## Typical questions
 
 - What kind of files does this program extract
+
 It grabs log files from Plutonium, crashdumps (snapshots of memory from the moment of a crash), all your Plutonium configs, checksums of the files present in Plutonium directory, windows events related to Plutonium crashes, information about your PC hardware (like CPU, GPU etc) and Windows power settings.
 
 - Is any information leaving my PC just by launching this program
+
 No. The only output from this program is a report file generated at the end. You are free to examine the contents of the zip file before sending it to the person helping you with your problem. **IT DOES NOT** send anything over the network, should there ever be any kind of network integration in the future update, the user will always be asked for consent.
 
 - Why do you need such an extensive dataset
+
 It comes from helping many players with various issues, from obscure crashes during long zombies games, through performance issues all the way up to misbehaving scripts. All of this data we had to collect from players at one point or another.
 
 - How can i upload the report file, it's too big for Discord message
+
 If the report includes a crashdump, it can indeed get quite beefy. From our experience, players usually send us bigger reports using [Google Drive](https://drive.google.com/).
 
 - How can i reach Plutonium support
+
 The expected chain of events is someone who is helping you point you here in order to get and use the tool, but if for any reason it's the other way around, [Plutonium official Discord server](https://discord.gg/plutonium) is a good place to look for help.
 
 - Why no user interface
+
 To be frank, to save time. This tool works either way, and you don't need to do too much of interacting with it aside from telling it which crashdump/game to use.
