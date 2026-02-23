@@ -74,3 +74,11 @@ The expected chain of events is someone who is helping you point you here in ord
 - Why no user interface
 
 To be frank, to save time. This tool works either way, and you don't need to do too much of interacting with it aside from telling it which crashdump/game to use.
+
+## Build
+
+Open `auto-py-to-exe`
+
+Go to settings, press `Import Config From JSON File` and select `export.json` from the project root directory
+
+Press big `CONVERT .PY TO .EXE` button

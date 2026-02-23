@@ -2,6 +2,7 @@ from pathlib import Path
 from typing import Self, Optional
 from collections.abc import Iterator, Callable
 from Game import Game
+from helpers import file_io
 import binascii, hashlib
 
 
@@ -53,6 +54,7 @@ class Plutonium:
     def is_valid_plutonium_directory(self) -> bool:
         return self.path_bin().exists() and self.path_games().exists() and self.path_launcher().exists() and self.path_storage().exists()
 
+    @file_io
     def get_hashes(self, file: Path) -> dict[str, str]:
         return {
             "crc32": "0x" + format(binascii.crc32(file.read_bytes()) & 0xFFFFFFFF, "08X"),

@@ -11,6 +11,7 @@ from Crashdump import Crashdump
 from Encoder import Encoder
 from Game import Game
 from HardwareWindows import HardwareWindows
+from helpers import file_io
 from PowerSettings import PowerSettings
 from Plutonium import Plutonium
 from PlutoniumFileType import PlutoniumFileType
@@ -175,9 +176,12 @@ class App:
 
             for file in Plutonium.dir_iterator(path, Plutonium.is_static_file):
                 assert file.is_file(), f"{file} is not a file"
-                self._hashes.append(FileHashDTO(
-                    self._plutonium.without_root(file), self._plutonium.get_hashes(file), file.stat().st_size
-                ))
+                try:
+                    self._hashes.append(FileHashDTO(
+                        self._plutonium.without_root(file), self._plutonium.get_hashes(file), file.stat().st_size
+                    ))
+                except PermissionError:
+                    print(f"WARNING: Could not get hash of the file '{file}' due to missing permissions.")
 
         print(f"\tCollected {len(self._hashes)} hashes")
 
@@ -211,9 +215,9 @@ class App:
         return self
 
 
-    def compose_report(self) -> Self:
+    @file_io
+    def compose_report(self, report_path: Path) -> Self:
         print(f"Generating incident report")
-        report_path = Path.cwd() / f"b2-report-{int(dt.datetime.now().timestamp())}.zip"
 
         with zipfile.ZipFile(report_path, "x", compresslevel=9) as report:
             report.writestr("general.json", json.dumps({
