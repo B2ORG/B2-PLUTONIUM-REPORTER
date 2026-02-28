@@ -18,7 +18,7 @@ def main():
         .collect_power_settings()
         .compose_report(Path.cwd() / f"b2-report-{int(dt.datetime.now().timestamp())}.zip")
     )
-    input("Send the zip file to the person handling your issue")
+    print("Send the zip file to the person handling your issue")
 
 if __name__ == "__main__":
     try:
