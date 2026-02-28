@@ -10,7 +10,7 @@ def file_io(fn):
         assert len(paths), "Decorator file_io should only decorate functions that take in Path argument"
 
         try:
-            fn(*args, **kwargs)
+            return fn(*args, **kwargs)
         except (PermissionError, FileNotFoundError, FileExistsError):
             print(f"FileIO encountered an error in function {fn.__qualname__}{signature(fn)}, with paths: {", ".join(paths)}")
             raise
