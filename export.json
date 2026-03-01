@@ -56,50 +56,6 @@
   {
    "optionDest": "bootloader_ignore_signals",
    "value": false
-  },
-  {
-   "optionDest": "datas",
-   "value": "C:/Users/Zi0/GitHub/B2-PLUTONIUM-REPORTER/AbstractHardware.py;."
-  },
-  {
-   "optionDest": "datas",
-   "value": "C:/Users/Zi0/GitHub/B2-PLUTONIUM-REPORTER/App.py;."
-  },
-  {
-   "optionDest": "datas",
-   "value": "C:/Users/Zi0/GitHub/B2-PLUTONIUM-REPORTER/Crashdump.py;."
-  },
-  {
-   "optionDest": "datas",
-   "value": "C:/Users/Zi0/GitHub/B2-PLUTONIUM-REPORTER/Encoder.py;."
-  },
-  {
-   "optionDest": "datas",
-   "value": "C:/Users/Zi0/GitHub/B2-PLUTONIUM-REPORTER/Game.py;."
-  },
-  {
-   "optionDest": "datas",
-   "value": "C:/Users/Zi0/GitHub/B2-PLUTONIUM-REPORTER/HardwareWindows.py;."
-  },
-  {
-   "optionDest": "datas",
-   "value": "C:/Users/Zi0/GitHub/B2-PLUTONIUM-REPORTER/Plutonium.py;."
-  },
-  {
-   "optionDest": "datas",
-   "value": "C:/Users/Zi0/GitHub/B2-PLUTONIUM-REPORTER/PlutoniumFileType.py;."
-  },
-  {
-   "optionDest": "datas",
-   "value": "C:/Users/Zi0/GitHub/B2-PLUTONIUM-REPORTER/PowerSettings.py;."
-  },
-  {
-   "optionDest": "datas",
-   "value": "C:/Users/Zi0/GitHub/B2-PLUTONIUM-REPORTER/WindowsEventLog.py;."
-  },
-  {
-   "optionDest": "datas",
-   "value": "C:/Users/Zi0/GitHub/B2-PLUTONIUM-REPORTER/dto;dto/"
   }
  ],
  "nonPyinstallerOptions": {
