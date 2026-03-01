@@ -178,7 +178,9 @@ class App:
                 assert file.is_file(), f"{file} is not a file"
                 try:
                     self._hashes.append(FileHashDTO(
-                        self._plutonium.without_root(file), self._plutonium.get_hashes(file), file.stat().st_size
+                        self._plutonium.without_root(file),
+                        self._plutonium.get_hashes(file),
+                        file.stat().st_size
                     ))
                 except PermissionError:
                     print(f"WARNING: Could not get hash of the file '{file}' due to missing permissions.")
@@ -210,8 +212,13 @@ class App:
 
     def collect_power_settings(self) -> Self:
         print("Collecting power settings")
-        self._power_settings: PowerSettingsDTO = PowerSettings().collect()
-        print(f"\tCollected power settings")
+        try:
+            self._power_settings: Optional[PowerSettingsDTO] = PowerSettings().collect()
+        except Exception as exc:
+            self._power_settings = None
+            print(f"\tError while extracting Windows power plan settings. The dataset may be incomplete.")
+        else:
+            print(f"\tCollected power settings")
         return self
 
 
@@ -228,7 +235,7 @@ class App:
                 "crashdumps_detected": self._has_crashdumps,
                 "file_hashes": [vars(dto) for dto in self._hashes],
                 "hardware_info": vars(self._hardware),
-                "power_settings": vars(self._power_settings)
+                "power_settings": vars(self._power_settings) if self._power_settings else {}
             }, ensure_ascii=False, indent=4, cls=Encoder))
 
             report.mkdir("configs")

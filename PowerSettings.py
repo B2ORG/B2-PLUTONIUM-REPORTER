@@ -1,4 +1,7 @@
-import subprocess, re
+import locale
+import re
+import subprocess
+from ctypes import windll
 from dto.PowerSettingsDTO import PowerSettingsDTO
 
 
@@ -21,60 +24,94 @@ class PowerSettings:
             proc = subprocess.run(
                 ["powercfg", "/query"],
                 capture_output=True,
-                text=True,
+                text=False,
                 check=True,
             )
-            return proc.stdout
+            stdout = proc.stdout if isinstance(proc.stdout, (bytes, bytearray)) else b""
+            return self._decode_output(stdout)
         except Exception as e:
             return f"error: {e}"
+
+    def _decode_output(self, data: bytes) -> str:
+        if not data:
+            return ""
+
+        preferred = locale.getpreferredencoding(False)
+        encodings = ["utf-8", preferred, "mbcs"]
+
+        try:
+            oem_cp = windll.kernel32.GetOEMCP()
+            if oem_cp:
+                encodings.append(f"cp{oem_cp}")
+        except Exception:
+            pass
+
+        seen = set()
+        unique_encodings = []
+        for enc in encodings:
+            if enc and enc.lower() not in seen:
+                unique_encodings.append(enc)
+                seen.add(enc.lower())
+
+        for enc in unique_encodings:
+            try:
+                return data.decode(enc)
+            except UnicodeDecodeError:
+                continue
+
+        return data.decode(unique_encodings[0] if unique_encodings else "utf-8", errors="replace")
 
     # ---------------------------------------------------------
     # Parse the entire output
     # ---------------------------------------------------------
     def _parse_powercfg(self, text: str) -> dict:
+        if not isinstance(text, str):
+            return {}
+
         schemes = {}
         current_scheme = None
         current_subgroup = None
         current_setting = None
 
-        lines = text.splitlines()
+        guid_line = re.compile(
+            r"^(\s*).*?GUID:\s*([0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12})(?:\s+\((.*)\))?$"
+        )
+        ac_line = re.compile(r"\bAC\b.*?(0x[0-9a-fA-F]+)\b")
+        dc_line = re.compile(r"\bDC\b.*?(0x[0-9a-fA-F]+)\b")
 
-        for line in lines:
-            line = line.strip()
-
-            # -------------------------------
-            # Power Scheme
-            # -------------------------------
-            m = re.match(r"Power Scheme GUID: ([0-9a-fA-F\-]+)\s+\((.+)\)", line)
-            if m:
-                guid, name = m.groups()
-                current_scheme = schemes.setdefault(guid, {
-                    "name": name,
-                    "subgroups": {}
-                })
-                current_subgroup = None
-                current_setting = None
+        for raw_line in text.splitlines():
+            line = raw_line.rstrip()
+            if not line.strip():
                 continue
 
-            # -------------------------------
-            # Subgroup
-            # -------------------------------
-            m = re.match(r"Subgroup GUID: ([0-9a-fA-F\-]+)\s+\((.+)\)", line)
+            m = guid_line.match(line)
             if m:
-                guid, name = m.groups()
-                current_subgroup = current_scheme["subgroups"].setdefault(guid, {
-                    "name": name,
-                    "settings": {}
-                })
-                current_setting = None
-                continue
+                indent, guid, name = m.groups()
+                indent_size = len(indent)
+                name = name or ""
 
-            # -------------------------------
-            # Setting
-            # -------------------------------
-            m = re.match(r"Power Setting GUID: ([0-9a-fA-F\-]+)\s+\((.+)\)", line)
-            if m:
-                guid, name = m.groups()
+                if indent_size == 0:
+                    # Scheme is top-level in powercfg output.
+                    current_scheme = schemes.setdefault(guid, {
+                        "name": name,
+                        "subgroups": {}
+                    })
+                    current_subgroup = None
+                    current_setting = None
+                    continue
+
+                if indent_size <= 2:
+                    if current_scheme is None:
+                        continue
+                    current_subgroup = current_scheme["subgroups"].setdefault(guid, {
+                        "name": name,
+                        "settings": {}
+                    })
+                    current_setting = None
+                    continue
+
+                if current_subgroup is None:
+                    continue
                 current_setting = current_subgroup["settings"].setdefault(guid, {
                     "name": name,
                     "ac_value": None,
@@ -83,19 +120,16 @@ class PowerSettings:
                 })
                 continue
 
-            # -------------------------------
-            # AC value
-            # -------------------------------
-            m = re.match(r"Current AC Power Setting Index: ([0-9a-fA-Fx]+)", line)
-            if m and current_setting:
+            if current_setting is None:
+                continue
+
+            m = ac_line.search(line)
+            if m:
                 current_setting["ac_value"] = m.group(1)
                 continue
 
-            # -------------------------------
-            # DC value
-            # -------------------------------
-            m = re.match(r"Current DC Power Setting Index: ([0-9a-fA-Fx]+)", line)
-            if m and current_setting:
+            m = dc_line.search(line)
+            if m:
                 current_setting["dc_value"] = m.group(1)
                 continue
 
@@ -120,7 +154,6 @@ class PowerSettings:
         """
         Converts hex values into human-readable meaning when possible.
         """
-        name = setting["name"].lower()
         ac = setting["ac_value"]
         dc = setting["dc_value"]
 

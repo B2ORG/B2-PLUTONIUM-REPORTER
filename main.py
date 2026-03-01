@@ -3,7 +3,7 @@ from pathlib import Path
 from traceback import print_exc
 import datetime as dt
 
-VERSION = "1.1"
+VERSION = "1.2"
 
 def main():
     print(f"B2 PLUTONIUM REPORTER V{VERSION}")
